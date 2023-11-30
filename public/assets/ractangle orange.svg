@@ -1,0 +1,16 @@
+<svg width="235" height="30" viewBox="0 0 235 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="ractangle orange">
+<path id="Rectangle 4" d="M0 0H234.42V4C234.42 18.3594 222.779 30 208.42 30H26C11.6406 30 0 18.3594 0 4V0Z" fill="#FD9340"/>
+<g id="Mask group">
+<mask id="mask0_1_5920" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="235" height="30">
+<path id="Rectangle 3" d="M0 0H234.42V4C234.42 18.3594 222.779 30 208.42 30H26C11.6406 30 0 18.3594 0 4V0Z" fill="#FD9340"/>
+</mask>
+<g mask="url(#mask0_1_5920)">
+<ellipse id="Ellipse 133" opacity="0.4" cx="56.6332" cy="-8.2016e-05" rx="20.0726" ry="11.6667" fill="#FEB47A"/>
+<ellipse id="Ellipse 135" opacity="0.4" cx="98.9291" cy="24.1666" rx="11.4701" ry="5.83333" fill="#FEB47A"/>
+<path id="Ellipse 136" opacity="0.4" d="M225.818 2.70817C225.818 6.73525 219.719 9.99984 212.197 9.99984C204.674 9.99984 198.576 6.73525 198.576 2.70817C198.576 -1.31891 204.674 -4.5835 212.197 -4.5835C219.719 -4.5835 225.818 -1.31891 225.818 2.70817Z" fill="#FEB47A"/>
+<ellipse id="Ellipse 134" opacity="0.4" cx="13.2623" cy="26.0418" rx="30.4674" ry="17.7083" fill="#FEB47A"/>
+</g>
+</g>
+</g>
+</svg>
