@@ -1,4 +1,3 @@
-import { useState } from "react";
 import arrow from "@/public/Arrow - Left 2.svg";
 import vector from "@/public/Vector.svg";
 import keyboardopen from "@/public/keyboardopen.svg";
@@ -7,42 +6,24 @@ import group from "@/public/Group 223.svg";
 import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import { ACCESS_TOKEN_COOKIE_NAME } from "@/lib/backend-api";
+import { Modal } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 
-const OPEN_BUTTON_CLASSNAMES =
-  "bg-white-200 shadow-md p-[14px] w-10 h-10 rounded-[16px] flex place-items-center";
+const Menu = ({ close }: any) => {
+  const router = useRouter();
 
-const FloatingMenu = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  if (!isOpen)
-    return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className={clsx(
-          OPEN_BUTTON_CLASSNAMES,
-          "absolute md:hidden top-6 right-6"
-        )}
-      >
-        <Image
-          src={arrow}
-          alt="open menu"
-          className="text-black w-full"
-          width={15}
-          height={15}
-        />
-      </button>
-    );
+  const logout = () => {
+    Cookies.remove(ACCESS_TOKEN_COOKIE_NAME);
+    router.push("/login");
+  };
 
   return (
-    <div className="relative md:hidden top-6 right-0">
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-30"></div>
-
-      <div className="absolute top-0 right-0 w-64 h-96 rounded-l-2xl p-4 transition duration-300 bg-white shadow-2xl z-40">
-        <div className="px-2 py-2 flex items-center space-x-3">
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className={clsx(OPEN_BUTTON_CLASSNAMES)}
-          >
+      <div className="md:hidden ml-16 w-[80%]">
+        <div className="flex items-center space-x-3">
+          <button onClick={close} className={clsx(OPEN_BUTTON_CLASSNAMES)}>
             <Image
               src={arrow}
               alt={""}
@@ -52,7 +33,7 @@ const FloatingMenu = () => {
           <h2 className="text-black font-normal">Menu</h2>
         </div>
 
-        <div className="py-2">
+        <div className="py-2 mb-3">
           {[
             { href: "/", name: "Tableau de bord", icon: keyboardopen },
             { href: "/", name: "Mes émargements", icon: note },
@@ -69,16 +50,55 @@ const FloatingMenu = () => {
             </Link>
           ))}
         </div>
-
-        <Link
-          className="absolute font-bold flex-row justify-center items-center text-center px-4 py-2 text-white bg-black rounded-full right-4 bottom-6"
-          href="/login"
+        <div className="pb-6 mb-4">
+        <button
+          className="absolute font-bold flex-row justify-center items-center text-center px-4 py-2 text-white bg-black rounded-full right-4"
+          onClick={logout}
         >
           Se déconnecter
-        </Link>
+        </button>
+        </div>
       </div>
-    </div>
+  );
+};
+
+const OPEN_BUTTON_CLASSNAMES =
+  "bg-white-200 shadow-md p-[14px] w-10 h-10 rounded-[16px] flex place-items-center";
+
+const FloatingMenu = () => {
+  const [opened, { open, close }] = useDisclosure();
+
+  return (
+    <>
+      <div className="absolute md:hidden top-6 right-6">
+        <button
+          onClick={open}
+          className={clsx(OPEN_BUTTON_CLASSNAMES, { hidden: opened })}
+        >
+          <Image
+            src={arrow}
+            alt="open menu"
+            className="text-black w-full"
+            width={15}
+            height={15}
+          />
+        </button>
+      </div>
+      <Modal classNames={{
+        close: "red"
+      }} 
+      onClose={close} 
+      opened={opened}
+      radius='md'
+      withCloseButton={false}
+      >
+        <Menu close={close} />
+      </Modal>
+
+    </>
   );
 };
 
 export default FloatingMenu;
+
+
