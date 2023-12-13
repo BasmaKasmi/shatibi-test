@@ -10,13 +10,11 @@ import { groupEmargementsByDate } from "@/lib/emargements";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import FloatingMenu from "@/components/FloatingMenu";
-import DeclareApModal from "@/components/DeclareApModal";
+import DeclareAp from "@/components/DeclareAp";
 import { Modal } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 
-
 export default function Home() {
-
   const getEmargementsNonFaits = async () => {
     const response = await BackendApi.get("teacher/attendance/no/validate");
 
@@ -41,31 +39,28 @@ export default function Home() {
   const getFlattenedNextCourses = (nextCourseApiResult: any) => {
     try {
       const flatCourses = nextCourseApiResult.result
-      .map(({ id, name, slot, classroom, date_list }: any) =>
-        date_list.map(
-          ({ date, start_time, end_time, session, validate }: any) => ({
-            id,
-            name,
-            start_time,
-            end_time,
-            session,
-            validate,
-            slot,
-            classroom,
-            date,
-          })
+        .map(({ id, name, slot, classroom, date_list }: any) =>
+          date_list.map(
+            ({ date, start_time, end_time, session, validate }: any) => ({
+              id,
+              name,
+              start_time,
+              end_time,
+              session,
+              validate,
+              slot,
+              classroom,
+              date,
+            })
+          )
         )
-      )
-      .flat();
-        
-      const sortedCourses = flatCourses.sort((a: any, b: any) => {
-        const timeA = new Date(`1970-01-01T${a.start_time}:00`).getTime();
-        const timeB = new Date(`1970-01-01T${b.start_time}:00`).getTime();
-        return timeA - timeB;
-      });
+        .flat();
+
+      const sortedCourses = flatCourses.sort((a: any, b: any) =>
+        a.start_time.localeCompare(b.start_time)
+      );
 
       return sortedCourses;
-
     } catch {
       return [];
     }
@@ -80,7 +75,9 @@ export default function Home() {
     queryFn: getNextCourse,
   });
 
-  const flattenedAndSortedCourses = nextCourses ? getFlattenedNextCourses(nextCourses) : [];
+  const flattenedAndSortedCourses = nextCourses
+    ? getFlattenedNextCourses(nextCourses)
+    : [];
 
   const emargementsNonFaits = data?.result ?? [];
 
@@ -101,22 +98,18 @@ export default function Home() {
   }
 
   return (
-      <div>
-      <Modal
-        opened={opened}
-        onClose={close}
-        withCloseButton={false}
-      >
-        <DeclareApModal />
+    <div>
+      <Modal opened={opened} onClose={close} withCloseButton={false} radius='lg' centered>
+        <DeclareAp />
         <div className="flex justify-end mt-4">
-        <Button
-          className="text-shatibi-red bg-shatibi-light-red font-bold py-2 px-8 rounded-full"
-          onClick={close} 
-          variant="red"
+          <Button
+            className="text-shatibi-red bg-shatibi-light-red font-bold py-2 px-8 rounded-full"
+            onClick={close}
+            variant="red"
           >
             Annuler
-        </Button>
-      </div>
+          </Button>
+        </div>
       </Modal>
 
       <div className="h-screen flex flex-col gap-3 relative">
@@ -147,17 +140,19 @@ export default function Home() {
             )}
           </div>
           <div>
-            <h3 className=" font-semibold text-lg leading-6">{displayToday()}</h3>
+            <h3 className=" font-semibold text-lg leading-6">
+              {displayToday()}
+            </h3>
 
             {!Array.isArray(nextCourses?.result) ||
             nextCourses?.result?.length === 0 ? (
               <p className="text-center mt-4">Pas de cours aujourd&apos;hui</p>
             ) : (
-            <div className="p-6">
-              {flattenedAndSortedCourses.map((course: any) => (
-              <NextCourse key={course.id} course={course} />
-              ))}
-            </div>
+              <div className="p-6">
+                {flattenedAndSortedCourses.map((course: any) => (
+                  <NextCourse key={course.id} course={course} />
+                ))}
+              </div>
             )}
           </div>
 
@@ -185,6 +180,5 @@ export default function Home() {
         </div>
       </div>
     </div>
-    
   );
 }

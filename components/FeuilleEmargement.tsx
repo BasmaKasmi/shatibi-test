@@ -8,9 +8,9 @@ import GroupRecap from "./GroupRecap";
 import Image from "next/image";
 import user from "@/public/2-User.svg";
 import clsx from "clsx";
-import { modals } from "@mantine/modals";
-import ReactQueryProvider from "@/app/react-query-provider";
 import ValiderEmargementModal from "./ValiderEmargementModal";
+import { Modal } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 
 type Student = {
   id: number;
@@ -23,7 +23,6 @@ type Props = {
   groupId: number;
   date: string;
 };
-
 
 const AI_AP_CLASSNAMES =
   "shadow-lg w-10 h-10 rounded-full text-shatibi-red flex place-items-center text-center font-bold";
@@ -58,6 +57,8 @@ const FeuilleEmargement = ({ groupId, date }: Props) => {
     });
 
   const queryClient = useQueryClient();
+
+  const [opened, { open, close }] = useDisclosure(false);
 
   const declareAp = async (
     studentId: number,
@@ -125,16 +126,13 @@ const FeuilleEmargement = ({ groupId, date }: Props) => {
     },
   });
 
-
   const { mutate: validateFeuille } = useMutation({
     mutationFn: () => validateFeuilleEmargement(),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["GROUP_STUDENTS"] });
       queryClient.invalidateQueries({ queryKey: ["PROCHAIN_COURS"] });
-
     },
   });
-
 
   const { mutate: Attendance } = useMutation({
     mutationFn: () => getStudentAttendance(),
@@ -144,33 +142,33 @@ const FeuilleEmargement = ({ groupId, date }: Props) => {
   });
 
   if (isLoadingForDate) return <p>Chargement...</p>;
-
   const handleClickValiderEmargement = () => {
-  
-    const onValidate = () => {
-      validateFeuille();
-      modals.closeAll();
-    }; 
-
-    const onCancel = () => {
-      modals.closeAll();
-    };
-    modals.openConfirmModal({
-      centered: true,
-      children: 
-      (
-        <ReactQueryProvider> 
-          <ValiderEmargementModal onValidate={onValidate} onCancel={onCancel} students={studentsForDate} />
-        </ReactQueryProvider>
-      ),
-      labels: { cancel: '', confirm: ''},
-      withCloseButton: false,
-      confirmProps: { style: { display: 'none' } }, cancelProps: { style: { display: 'none'} },
-    });
+    open();
   };
 
+  const onValidate = () => {
+    validateFeuille();
+    close();
+  };
+
+  const onCancel = () => {
+    close();
+  };
   return (
     <div className="flex flex-col h-[calc(100vh-35px)] overflow-hidden">
+      <Modal
+        opened={opened}
+        onClose={close}
+        withCloseButton={false}
+        radius="lg"
+        centered
+      >
+        <ValiderEmargementModal
+          onValidate={onValidate}
+          onCancel={onCancel}
+          students={studentsForDate}
+        />
+      </Modal>
       <GroupRecap groupRecap={statistics} />
       <div className="flex items-center ml-6 mt-2">
         <Image src={user} alt="nombre d'étudiants" width={17} height={17} />
@@ -233,15 +231,16 @@ const FeuilleEmargement = ({ groupId, date }: Props) => {
           })}
         </div>
       )}
-      
-      
-      <Button
-        className="mt-20 mx-auto self-center font-bold"
-        onClick={() => handleClickValiderEmargement()}
-        variant="green"
-      >
-        Valider la feuille d&apos;émargement
-      </Button>
+
+      <div className="absolute bottom-6 left-0 right-0">
+        <Button
+          className="mx-auto block font-bold"
+          onClick={() => handleClickValiderEmargement()}
+          variant="green"
+        >
+          Valider la feuille d&apos;émargement
+        </Button>
+      </div>
     </div>
   );
 };

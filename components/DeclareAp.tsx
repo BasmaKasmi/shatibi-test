@@ -1,9 +1,10 @@
 import Image from "next/image";
 import User from "@/public/ModalUser.svg";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import BackendApi from "@/lib/backend-api";
 import { useState } from "react";
-import Button from "@/components/Button";
+import RechercheIcon from '@/public/recherche-icon.svg';
+import { useRouter } from "next/navigation";
 
 interface Group {
   id: number;
@@ -32,8 +33,10 @@ const getGroups = async () => {
   return response.data.result;
 };
 
-const DeclareApModal = () => {
+const DeclareAp = () => {
   const [studentName, setStudentName] = useState("");
+
+  const router = useRouter();
 
   const handleNameChange = (event: any) => {
     setStudentName(event.target.value);
@@ -62,62 +65,58 @@ const DeclareApModal = () => {
   if (isError) return <div>Erreur: {error.message}</div>;
 
   return (
-    <div className="relative p-2 grid justify-items-center">
-      <h3 className="text-center text-lg font-semibold text-black mb-6">
-            Déclarer une AP
-          </h3>
-      <div className="mb-4 bg-white rounded-xl shadow w-80 h-24">
-        <div className="flex items-center ml-6">
+  <div className="relative p-2 justify-items-center flex flex-col items-center overflow-hidden">
+    <h3 className="text-center text-lg font-semibold text-black mb-8">
+        Déclarer une AP
+      </h3>
+
+      <div className="mb-4 bg-white rounded-xl shadow w-full sm:w-11/12 md:w-10/12 lg:w-8/12 xl:w-6/12 h-24 mx-auto">
+        <div className="flex gap-2 pl-4 place-items-center">
           <Image className="mt-2" src={User} alt="User" />
+
           <label
             htmlFor="searchStudentByName"
-            className="block text-sm font-semibold ml-2 mt-2"
+            className="block text-sm font-semibold mt-2"
           >
             Rechercher par nom :
           </label>
         </div>
+        <div className="flex justify-center"> 
         <input
-          type="text"
-          id="searchByName"
-          className="w-72 p-2 border rounded-full ml-4 mt-2"
-          placeholder="Saisir nom de l’étudiant"
-          value={studentName}
-          onChange={handleNameChange}
+        type="text"
+        id="searchByName"
+        className="w-9/12 p-2 pl-6 border rounded-full mt-2 text-xs"
+        placeholder="Saisir nom de l’étudiant"
+        value={studentName}
+        onChange={handleNameChange}
         />
-      </div>
-
-      <div className="mb-4 bg-white rounded-xl shadow w-80 h-80">
-        <div className="flex items-center ml-6">
-          <Image className="mt-2" src={User} alt="User" />
-          <label
-            htmlFor="searchByName"
-            className="block text-sm font-semibold ml-2 mt-2"
-          >
-            Rechercher par groupe :
-          </label>
+        <Image className="mt-2" src={RechercheIcon} alt="rechercher" />
         </div>
-        <input
-          type="text"
-          id="searchByGroupName"
-          className="w-72 p-2 border rounded-full ml-4 mt-4"
-          placeholder="Saisir nom du groupe"
-        />
-        <div className="flex flex-col max-h-[63%] overflow-y-scroll">
-          {groups?.map((group) => (
+      </div>
+      <div className="mb-4 bg-white rounded-xl shadow w-full h-64 sm:h-64 md:h-96 lg:h-80 xl:h-96">
+        <div className="flex gap-2 pl-4 place-items-center text-sm font-semibold mt-3">
+          <Image src={User} alt="User" />
+          Rechercher par groupe :
+          </div>
+          <div className="flex flex-col items-center justify-center mt-2 max-h-[63%] overflow-y-scroll">
+            {groups?.map((group) => (
             <div
-              key={group.id}
-              className="p-2 bg-white shadow-md rounded-md w-72 ml-4 mt-2 mb-2"
+            onClick={() =>
+              // @ts-ignore
+              router.push(`liste-etudiants?groupId=${group.id}&groupName=${group.name}&groupSlot=${group.slot}`)
+            }
+            key={group.id}
+            className="p-2 bg-white shadow-md rounded-lg w-[90%] mt-2 mb-2"
             >
               <p className="text-[14px] font-semibold">{group.name}</p>
               <p className="text-xs font-light">{group.slot}</p>
             </div>
-          ))}
-          {!groups ||
-            (groups.length === 0 && <div>Pas de groupes à afficher</div>)}
-        </div>
-      </div>
+            ))}
+            {!groups || (groups.length === 0 && <div>Pas de groupes à afficher</div>)}
+          </div>
+       </div>
     </div>
   );
 };
 
-export default DeclareApModal;
+export default DeclareAp;

@@ -1,14 +1,20 @@
 import clsx from "clsx";
 
-
 type Props = {
   variant?: "orange" | "base" | "green" | "red";
   children: React.ReactNode;
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   className?: string;
+  type?: "button" | "submit";
 };
 
-const Button = ({ variant = "base", children, onClick, className }: Props) => {
+const Button = ({
+  variant = "base",
+  children,
+  onClick,
+  className,
+  type = "button",
+}: Props) => {
   const classNames = clsx(
     { "text-white bg-shatibi-orange": variant === "base" },
     { "bg-shatibi-orange/[.15] text-shatibi-orange": variant === "orange" },
@@ -19,7 +25,7 @@ const Button = ({ variant = "base", children, onClick, className }: Props) => {
   );
 
   return (
-    <button onClick={onClick} className={classNames}>
+    <button type={type} onClick={onClick} className={classNames}>
       <p className="w-full">{children}</p>
     </button>
   );

@@ -1,3 +1,5 @@
+import { displayDate } from '@/lib/dates';
+
 const Emargement = ({ emargement, onClick }: any) => {
   return (
     <div
@@ -8,7 +10,9 @@ const Emargement = ({ emargement, onClick }: any) => {
       <h2 className="font-semibold">
         {emargement.name} ({emargement.slot})
       </h2>
-      <p className="italic text-[#898989] text-xs font-semibold">{emargement.date}</p>
+      <p className="italic text-[#898989] text-xs font-semibold">
+        {displayDate(emargement.date)}
+      </p>
     </div>
   );
 };

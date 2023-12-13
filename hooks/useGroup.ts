@@ -32,22 +32,43 @@ const useGroup = ({ groupId, date }: { groupId: number; date: string }) => {
     queryFn: () => getStudents(groupId),
   });
 
+  console.log("Students Data for Date:", studentsDataForDate);
+
   const students = studentsData?.result ?? [];
 
+  console.log("Students Data:", studentsData?.result);
+
+
   const ASSIDUITE_MAPPING = Object.fromEntries(
-    students.map(({ nb_ap, nb_ai, id }: any) => [
+    students.map(({ nb_ap, nb_ai, id, name }: any) => [
       id,
       {
+        id,
+        name,
         totalAbsences: Number(nb_ap ?? 0) + Number(nb_ai ?? 0),
+        ai: Number(nb_ai),
+        ap: Number(nb_ap),
+        presencePercentage: 0,
       },
     ])
   );
+
+  console.log("ASSIDUITE_MAPPING:", ASSIDUITE_MAPPING);
+
 
   const getTotalAbsences = (studentId: number) => {
     try {
       return ASSIDUITE_MAPPING[studentId].totalAbsences;
     } catch {
       return 0;
+    }
+  };
+
+  const getStudentStatistics = (studentId: number) => {
+    try {
+      return ASSIDUITE_MAPPING[studentId];
+    } catch {
+      return {};
     }
   };
 
@@ -58,6 +79,8 @@ const useGroup = ({ groupId, date }: { groupId: number; date: string }) => {
     progression: 0,
   };
 
+
+  
   return {
     isLoading,
     students,
@@ -65,6 +88,7 @@ const useGroup = ({ groupId, date }: { groupId: number; date: string }) => {
     isLoadingForDate,
     getTotalAbsences,
     statistics,
+    getStudentStatistics,
   };
 };
 

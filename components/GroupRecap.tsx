@@ -20,7 +20,7 @@ const GroupRecap = ({ groupRecap }: { groupRecap: GroupRecap }) => {
         />
         <h1 className="text-[14px] font-semibold ml-2">Récapitulatif du groupe:</h1>
       </div>
-      <div className="flex justify-around items-center bg-white shadow-md mx-6 rounded-lg pt-4 pb-4 mb-4">
+      <div className="flex justify-around items-center bg-white shadow-md rounded-lg pt-4 pb-4 mb-2">
         <div className="flex justify-around space-x-8">
           {[
             {
