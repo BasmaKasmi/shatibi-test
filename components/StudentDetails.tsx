@@ -5,60 +5,51 @@ import Button from "./Button";
 import RechercheIcon from '@/public/recherche-icon.svg';
 import { useQuery } from "@tanstack/react-query";
 import BackendApi from "@/lib/backend-api";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { displayDate } from "@/lib/dates";
 
 
-
-const getDates = async ({ groupId, studentId, startDate, endDate }:any) => {
-    try {
-      const payload = {
-        groupId,
-        studentId,
-        startDate: startDate || null,
-        endDate: endDate || null, 
-      };
-  
-      const response = await BackendApi.post("/teacher/attendance/group/student", payload);
-      console.log(response.data.result); 
-      return response.data.result;
-    } catch (error) {
-      console.error("An error occurred while fetching the dates:", error);
-    }
+const getDates = async (params: { group_id: string, student_id: string, start_date: string, end_date: string }) => {
+  const payload = {
+    group_id: params.group_id,
+    student_id: params.student_id,
+    start_date: params.start_date || "",
+    end_date: params.end_date || ""
   };
-  
+  try {
+    const response = await BackendApi.post("/teacher/attendance/group/student", payload);
+    if (response.data.status === "fail") {
+      throw new Error(response.data.error);
+    }
+    if (response.data.error) {
+      throw new Error(response.data.error);
+    }
+    return response.data.result;
+  } catch (error) {
+    throw error; 
+  }
+};
 
-export const StudentDetails = ({ groupId, studentId, name }: any) => {
-    const [startDate, setStartDate] = useState<string | null>(null);
-    const [endDate, setEndDate] = useState<string | null>(null);
+export const StudentDetails = ({ group_id, student_id, name }: { group_id: string; student_id: string; name: string }) => {
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+
+  const { data: dateRange, refetch: refetchDateRange, isError, error } = useQuery<string[], Error>({
+    queryKey: ["dateRange", group_id, student_id, startDate, endDate],
+    queryFn: () => getDates({ group_id, student_id, start_date: startDate, end_date: endDate }),
+  });
 
 
-    const { data: dateRange, refetch: refetchDateRange } = useQuery<string[], Error>({
-        queryKey: ["dateRange", groupId, studentId, startDate ?? 'all', endDate ?? 'all'],
-        queryFn: () => getDates({ groupId, studentId, startDate, endDate }),
-      });
-      
-    const filterAndLimitDates = (dates: string[], startDate: string | null, endDate: string | null) => {
-        if (!startDate || !endDate) {
-            return dates.slice(0, 5);
-        }
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        return dates.filter(date => new Date(date) >= start && new Date(date) <= end).slice(0, 5);
-      };
-        
-
-    const handleSearchClick = () => {
-        if (startDate && endDate) {
-          refetchDateRange();
-        } else {
-          console.error("Both start and end dates must be selected.");
-        }
-    };
-
-    const limitedDateRange = filterAndLimitDates(dateRange || [], startDate, endDate);
-    console.log(limitedDateRange);
-
+  if (isError) {
+    return <div>{error.message}</div>;
+  }
+  const renderDateList = () => {
+    return dateRange?.map((date, index) => (
+      <div key={index} className="p-2 bg-white shadow-md rounded-lg cursor-pointer">
+        <p className="text-[14px] font-semibold">{displayDate(date)}</p>
+      </div>
+    ));
+  };
 
   return (
   <div className="relative p-2 justify-items-center flex flex-col items-center overflow-hidden">
@@ -76,20 +67,20 @@ export const StudentDetails = ({ groupId, studentId, name }: any) => {
         </div>
         <div className="flex justify-center gap-4"> 
         <input
-          type="date" 
-          id="startDate"
+          id="start_date"
+          placeholder="yyyy-mm-dd"
           className="w-1/3 p-2 pl-6 border rounded-full mt-2 text-xs"
-          value={startDate ?? ''}
+          value={startDate || ''}
           onChange={(e) => setStartDate(e.target.value)}
         />
         <input
-          type="date"
-          id="endDate"
+          id="end_date"
+          placeholder="yyyy-mm-dd"
           className="w-1/3 p-2 pl-6 border rounded-full mt-2 text-xs"
-          value={endDate ?? ''}
+          value={endDate || ''}
           onChange={(e) => setEndDate(e.target.value)}
         />
-        <Image onClick={handleSearchClick} className="mt-2" src={RechercheIcon} alt="rechercher" />
+        <Image className="mt-2" src={RechercheIcon} alt="rechercher" />
         </div>
       </div>
       <div className="mb-4 bg-white rounded-xl shadow w-full h-64 sm:h-64 md:h-96 lg:h-80 xl:h-96">
@@ -97,12 +88,8 @@ export const StudentDetails = ({ groupId, studentId, name }: any) => {
           <Image src={AP} alt="User" />
           Sélectionner les AP :
           </div>
-          {limitedDateRange.map((date: string, index: number) => (
-            <div key={index} className="p-2 bg-white shadow-md rounded-lg cursor-pointer">
-              <p className="text-[14px] font-semibold">{displayDate(date)}</p>
-            </div>
-          ))}
        </div>
+       {renderDateList()}
        <div className="flex justify-center gap-6 w-full mt-4">
         <Button
           className="text-shatibi-green bg-shatibi-light-green font-bold py-2 px-8 rounded-full"

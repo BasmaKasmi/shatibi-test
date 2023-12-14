@@ -100,6 +100,9 @@ export const StudentStatistics = ({
 export const StudentModalContentWrapper = ({
   studentStats,
   onClickCancel,
+  start_date,
+  student_id,
+  group_id,
 }: any) => {
   const [modalToDisplay, setModalToDisplay] = useState<"statistics" | "declare_ap">("statistics");
 
@@ -107,21 +110,18 @@ export const StudentModalContentWrapper = ({
 
   if (modalToDisplay === "statistics") {
     return (
-      <StudentStatistics
-      name={name}
-      totalAbsences={totalAbsences}
-      ap={ap}
-      presencePercentage={presencePercentage}
-      onClickDeclarerAp={() => setModalToDisplay("declare_ap")}
-      onClickCancel={onClickCancel}
+
+      <p>
+    <StudentDetails 
+     name={name}
+     student_id={student_id}
+     group_id={group_id}
     />
+  </p>
     
     );
   }
 
   return <p>
-    <StudentDetails 
-     name={name}
-    />
   </p>;
 };
