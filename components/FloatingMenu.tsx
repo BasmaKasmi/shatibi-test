@@ -19,7 +19,7 @@ const Menu = ({ close }: any) => {
     Cookies.remove(ACCESS_TOKEN_COOKIE_NAME);
     router.push("/login");
   };
-
+  
   return (
     <div className="md:hidden">
       <div className="flex items-center space-x-3">
@@ -36,18 +36,20 @@ const Menu = ({ close }: any) => {
       <div className="py-2 mb-3">
         {[
           { href: "/", name: "Tableau de bord", icon: keyboardopen },
-          { href: "/", name: "Mes émargements", icon: note },
-          { href: "/", name: "Mes groupes", icon: vector },
-          { href: "/", name: "Mon agenda", icon: group },
+          { href: "/emargement/groupsPage", name: "Mes émargements", icon: note },
+          { href: "/groups/groupsPage", name: "Mes groupes", icon: vector },
+          { href: "/agenda/calendarPage", name: "Mon agenda", icon: group },
         ].map((item) => (
-          <Link
-            onClick={close}
-            key={item.name}
-            href={item.href}
-            className="px-4 py-2 text-black font-normal flex items-center"
-          >
-            <Image src={item.icon} alt="icon" className="h-4 w-4 mr-2" />
-            {item.name}
+          <Link key={item.name} href={item.href} legacyBehavior>
+            <a
+              onClick={() => {
+                close();
+              }}
+              className="px-4 py-2 text-black font-normal flex items-center"
+            >
+              <Image src={item.icon} alt={item.name} className="h-4 w-4 mr-2" />
+              {item.name}
+            </a>
           </Link>
         ))}
       </div>

@@ -6,11 +6,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import BackendApi from "@/lib/backend-api";
 import GroupRecap from "./GroupRecap";
 import Image from "next/image";
-import user from "@/public/2-User.svg";
+import user from "@/public/user.svg";
 import clsx from "clsx";
 import ValiderEmargementModal from "./ValiderEmargementModal";
 import { Modal } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { useState } from "react";
+import { StudentModalContentWrapper } from "@/app/emargement/components";
 
 type Student = {
   id: number;
@@ -22,6 +24,8 @@ type Student = {
 type Props = {
   groupId: number;
   date: string;
+  groupName: string;
+  groupSlot: string;
 };
 
 const AI_AP_CLASSNAMES =
@@ -34,7 +38,7 @@ const ApOrAiButton = ({
 }: {
   apOrAi: "AP" | "AI";
   active: boolean;
-  onClick: () => void;
+  onClick: (event: any) => void;
 }) => {
   return (
     <div
@@ -42,7 +46,10 @@ const ApOrAiButton = ({
         AI_AP_CLASSNAMES,
         active ? "bg-shatibi-red text-white" : "bg-shatibi-red/[.15]"
       )}
-      onClick={onClick}
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick(event);
+      }}
     >
       <p className="w-full">{apOrAi}</p>
     </div>
@@ -50,11 +57,20 @@ const ApOrAiButton = ({
 };
 
 const FeuilleEmargement = ({ groupId, date }: Props) => {
-  const { studentsForDate, isLoadingForDate, getTotalAbsences, statistics } =
-    useGroup({
-      groupId,
-      date,
-    });
+  const {
+    studentsForDate,
+    isLoadingForDate,
+    getTotalAbsences,
+    statistics,
+    getStudentStatistics,
+  } = useGroup({
+    groupId,
+    date,
+  });
+
+  const [selectedStudentId, setSelectedStudentId] = useState<null | number>(
+    null
+  );
 
   const queryClient = useQueryClient();
 
@@ -131,6 +147,10 @@ const FeuilleEmargement = ({ groupId, date }: Props) => {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["GROUP_STUDENTS"] });
       queryClient.invalidateQueries({ queryKey: ["PROCHAIN_COURS"] });
+      queryClient.invalidateQueries({ queryKey: ["EMARGEMENT_NON_FAIT"] });
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["EMARGEMENT_NON_FAIT"] });
     },
   });
 
@@ -141,12 +161,13 @@ const FeuilleEmargement = ({ groupId, date }: Props) => {
     },
   });
 
-  if (isLoadingForDate) return <p>Chargement...</p>;
+  if (isLoadingForDate) return <p className="p-3">Chargement...</p>;
   const handleClickValiderEmargement = () => {
     open();
   };
 
   const onValidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["EMARGEMENT_NON_FAIT"] });
     validateFeuille();
     close();
   };
@@ -154,8 +175,26 @@ const FeuilleEmargement = ({ groupId, date }: Props) => {
   const onCancel = () => {
     close();
   };
+
   return (
     <div className="flex flex-col h-[calc(100vh-35px)] overflow-hidden">
+      <Modal
+        withCloseButton={false}
+        radius="lg"
+        onClose={() => setSelectedStudentId(null)}
+        opened={selectedStudentId !== null}
+        centered
+      >
+        {selectedStudentId ? (
+          <StudentModalContentWrapper
+            studentStats={getStudentStatistics(selectedStudentId)}
+            onClickCancel={() => setSelectedStudentId(null)}
+            group_id={groupId}
+            student_id={selectedStudentId}
+          />
+        ) : null}
+      </Modal>
+
       <Modal
         opened={opened}
         onClose={close}
@@ -169,18 +208,23 @@ const FeuilleEmargement = ({ groupId, date }: Props) => {
           students={studentsForDate}
         />
       </Modal>
+
       <GroupRecap groupRecap={statistics} />
+
       <div className="flex items-center ml-6 mt-2">
         <Image src={user} alt="nombre d'étudiants" width={17} height={17} />
+
         <h1 className="text-[14px] font-semibold ml-2">
           Nombre d&apos;étudiants: {studentsForDate.length}
         </h1>
       </div>
+
       {studentsForDate.length === 0 ? null : (
         <div className="flex flex-col gap-2 p-5 min-h-[33%] max-h-[60%] grow overflow-y-auto">
           {studentsForDate.map(({ name, id, absent, motive }: any) => {
             return (
               <div
+                onClick={() => setSelectedStudentId(id)}
                 key={id}
                 className={clsx(
                   "flex flex-row shadow-md rounded-lg justify-between p-3",
@@ -203,6 +247,7 @@ const FeuilleEmargement = ({ groupId, date }: Props) => {
                         onClick={() => mutate({ studentId: id, apOrAi: "PR" })}
                       />
                     ) : null}
+
                     {motive === "AI" ? (
                       <ApOrAiButton
                         apOrAi="AI"
@@ -232,7 +277,7 @@ const FeuilleEmargement = ({ groupId, date }: Props) => {
         </div>
       )}
 
-      <div className="absolute bottom-6 left-0 right-0">
+      <div className="w-full bg-white py-3">
         <Button
           className="mx-auto block font-bold"
           onClick={() => handleClickValiderEmargement()}

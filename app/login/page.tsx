@@ -2,13 +2,15 @@
 
 import Button from "@/components/Button";
 import BackendApi, { ACCESS_TOKEN_COOKIE_NAME } from "@/lib/backend-api";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookie from "js-cookie";
 import Image from "next/image";
 import clsx from "clsx";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import Link from "next/link";
+
 
 const INPUT_CLASSNAMES =
   "rounded-xl border-gray-400 border p-4 w-full w-11/12 self-center";
@@ -27,6 +29,9 @@ const LoginPage = () => {
     onSuccess: (data) => {
       Cookie.set(ACCESS_TOKEN_COOKIE_NAME, data.token);
 
+      localStorage.setItem("username", watch().username as string);
+
+
       router.push("/");
     },
     onError: () =>
@@ -40,23 +45,22 @@ const LoginPage = () => {
 
     const { username, password } = watch();
 
-    const formData = new FormData();
+    const loginData = {
+      username: username,
+      password: password
+    };
+  
+    const config = {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
 
-    formData.append("username", username);
-    formData.append("password", password);
-
-    const response = await BackendApi.post("login_check", formData);
+    const response = await BackendApi.post('login_check', JSON.stringify(loginData), config);
 
     return response.data;
   };
-
-  // useEffect(() => {
-  //   BackendApi.get("teacher/attendance/no/validate")
-  //     .then(() => {
-  //       router.push("/");
-  //     })
-  //     .catch(() => {});
-  // }, []);
+  
 
   return (
     <div className="h-full min-h-screen">
@@ -64,7 +68,7 @@ const LoginPage = () => {
         <div>
           <h1 className="text-[54px] font-semibold mt-32">Espace Professeur</h1>
 
-          <p className="text-gray-400 font-normal">
+          <p className="text-shatibi-grey font-normal">
             Connectez-vous et notez l’assiduité de vos groupes
           </p>
         </div>
@@ -93,19 +97,27 @@ const LoginPage = () => {
           ) : null}
 
           <Button
-            className="w-10/12 self-center font-bold"
+            className="w-10/12 self-center font-bold mt-1"
             onClick={(event: any) => mutate(event)}
           >
             Se connecter
           </Button>
+          <Link 
+          href="/resetPassword" 
+          legacyBehavior
+          >
+            <a className="self-center text-shatibi-grey font-normal">
+              Mot de passe oublié ?
+            </a>
+          </Link>
         </div>
 
         <Image
           className="self-center mb-3 p-6"
           src="/logo-shatibi.png"
           alt="Logo Shatibi"
-          width={100}
-          height={100}
+          width={150}
+          height={150}
         />
       </div>
     </div>

@@ -1,127 +1,72 @@
 "use client";
 
-import Button from "@/components/Button";
 import { useState } from "react";
-import Image from "next/image";
-import statusup from '@/public/statusup.svg';
-import { StudentDetails } from "@/components/StudentDetails";
+import ConfirmAp from "@/components/ConfirmAp";
+import { useList } from "react-use";
+import { StudentDates } from "@/components/StudentDates";
 
 export const StudentItem = ({ totalAbsences, name, onClick }: any) => {
-  console.log(`${name} a un total de ${totalAbsences} absence(s).`);
-  return(
+  return (
     <div
-    onClick={onClick}
-    className="flex flex-row shadow-md rounded-lg justify-between p-3"
-  >
-    <div className="ml-5">
-      <p className="text-[14px] font-semibold">{name}</p>
-      <p className="text-xs font-light">Absences: {totalAbsences}</p>
-    </div>
-  </div>
-  );
-
-};
-
-
-export const StudentStatistics = ({
-  name,
-  totalAbsences, 
-  ap,
-  presencePercentage,
-  onClickCancel,
-  onClickDeclarerAp,
-}: any) => {
-  return(
-    <div className="relative p-2 grid justify-items-center">
-    <h2 className="text-xl font-bold text-center">{name}</h2>
-    <div className="flex mt-4 justify-start w-full">
-      <Image
-        src={statusup}
-        alt="Recapitulatif du groupe"
-        width={17}
-        height={17}
-      />
-      <h1 className="text-[14px] font-semibold ml-2">Récapitulatif du groupe:</h1>
-    </div>
-    <div className="flex justify-center items-center bg-white shadow-md rounded-lg w-full mx-auto mt-2 py-2">
-      <div className="flex justify-around space-x-14 items-center">
-        {[
-          {
-            name: "Absence",
-            number: totalAbsences,
-            isPercentage: false,
-          },
-          {
-            name: "Présence",
-            number: presencePercentage,
-            isPercentage: true,
-          },
-          {
-            name: "AP",
-            number: ap,
-            isPercentage: false,
-          },
-        ].map(({ name, number, isPercentage }) => (
-          <div
-            key={name}
-            className="flex flex-col items-center justify-center"
-          >
-            <span className="text-black font-semibold text-lg">
-              {number}{isPercentage ? " %" : ""}
-            </span>
-            <div className="text-black font-light text-xs">{name}</div>
-          </div>
-        ))}
+      onClick={onClick}
+      className="flex flex-row shadow-md rounded-lg justify-between p-3"
+    >
+      <div className="ml-5">
+        <p className="text-[14px] font-semibold">{name}</p>
+        <p className="text-xs font-light">Absences: {totalAbsences}</p>
       </div>
     </div>
-    <div className="flex justify-center gap-4 mt-6">
-      <Button
-        className="text-shatibi-orange bg-shatibi-light-green font-semibold py-2 px-4 rounded-full"
-        onClick={onClickDeclarerAp}
-        variant="orange"
-      >
-        Déclare AP
-      </Button>
-      <Button
-        className="text-shatibi-red bg-shatibi-light-red font-semibold py-2 px-4 rounded-full"
-        onClick={onClickCancel}
-        variant="red"
-      >
-        Annuler
-      </Button>
-    </div>
-  </div>
   );
 };
-
-
-
 
 export const StudentModalContentWrapper = ({
   studentStats,
-  onClickCancel,
-  start_date,
   student_id,
   group_id,
+  onClickCancel,
 }: any) => {
-  const [modalToDisplay, setModalToDisplay] = useState<"statistics" | "declare_ap">("statistics");
+  const [modalToDisplay, setModalToDisplay] = useState<
+    "declare_ap" | "ConfirmAp"
+  >("declare_ap");
 
-  const { name, totalAbsences, ap, presencePercentage } = studentStats;
 
-  if (modalToDisplay === "statistics") {
+  const handleGoToConfirmAp = () => {
+    if (selectedDates.length === 0) {
+      alert("Veuillez sélectionner au moins une date avant de continuer.");
+    } else {
+      setModalToDisplay("ConfirmAp");
+    }
+  };
+
+  const handleBackToStudentDetails = () => {
+    setModalToDisplay("declare_ap");
+  };
+  const [selectedDates, selectedDatesFunctions] = useList<string>([]);
+
+  if (modalToDisplay === "declare_ap") {
     return (
-
       <p>
-    <StudentDetails 
-     name={name}
-     student_id={student_id}
-     group_id={group_id}
-    />
-  </p>
-    
+        <StudentDates
+          name={studentStats.name}
+          student_id={student_id}
+          group_id={group_id}
+          onClickCancel={onClickCancel}
+          onClickValidate={handleGoToConfirmAp}
+          selectedDates={selectedDates}
+          selectedDatesFunctions={selectedDatesFunctions}
+        />
+      </p>
     );
   }
 
-  return <p>
-  </p>;
+  return (
+    <p>
+      <ConfirmAp
+        student={studentStats.student}
+        onClickCancel={handleBackToStudentDetails}
+        onClickValidate={() => {}}
+        selectedDates={selectedDates}
+      />
+    </p>
+  );
 };

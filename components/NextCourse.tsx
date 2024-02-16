@@ -3,9 +3,10 @@
 import Image from "next/image";
 import done from "@/public/done.svg";
 import { useRouter } from "next/navigation";
+import { formatCourseName } from "@/lib/format-utils";
 
 type Course = {
-  id: string; // this is the group id
+  id: string;
   start_time: string;
   end_time: string;
   classroom: string;
@@ -14,6 +15,7 @@ type Course = {
   name: string;
   date: string;
   validate: boolean;
+  slot: string;
 };
 
 type NextCourseProps = {
@@ -28,10 +30,12 @@ const NextCourse = ({ course }: NextCourseProps) => {
     <div
       onClick={() =>
         // @ts-ignore
-        router.push(`emargement?groupId=${course.id}&date=${course.date}`)
-      }
+        router.push(
+          `emargement?groupId=${course.id}&date=${course.date}&groupName=${course.name}&groupSlot=${course.slot}`
+          )
+        }
     >
-      <div className="bg-white rounded-xl p-2 shadow-md flex justify-between items-center py-2 px-2 relative mt-4">
+      <div className="bg-white rounded-xl p-2 shadow-md flex justify-between items-center py-2 px-2 relative mt-2">
         <div className="absolute left-12 h-14 w-1 bg-shatibi-orange rounded-lg-lg"></div>
         <div>
           <p className="text-black text-xs font-normal">{course.start_time}</p>
@@ -40,8 +44,8 @@ const NextCourse = ({ course }: NextCourseProps) => {
           </p>
         </div>
         <div>
-          <p className="text-[13px] font-semibold pl-4 inline-block">{course.name}</p>
-          <p className="text-[13px] font-semibold italic text-shatibi-orange pl-4">
+          <p className="text-[13px] font-semibold inline-block pl-2">{formatCourseName(course.name)}</p>
+          <p className="text-[13px] font-semibold italic text-shatibi-orange pl-2">
             {course.classroom}
           </p>
         </div>

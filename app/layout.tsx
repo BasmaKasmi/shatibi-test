@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { poppins } from "@/style/fonts";
 import Providers from "./providers";
+import dayjs from "dayjs";
+
+dayjs.locale("fr");
 
 export const metadata: Metadata = {
   title: "Shatibi",
@@ -16,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-      <link rel="manifest" href="/manifest.json" />
+        <link rel="manifest" href="/manifest.json" />
       </head>
       <body style={poppins.style}>
         <Providers>{children}</Providers>

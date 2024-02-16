@@ -4,16 +4,18 @@ import Button from "@/components/Button";
 import GroupRecap from "@/components/GroupRecap";
 import SectionTitle from "@/components/SectionTitle";
 import useGroup from "@/hooks/useGroup";
-import { useRouter, useSearchParams } from "next/navigation";
 
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import user from "@/public/user.svg";
-import { Modal } from "@mantine/core";
 import { useState } from "react";
-import { StudentItem, StudentModalContentWrapper } from "./components";
 import { formatCourseName } from "@/lib/format-utils";
+import { StudentItem } from "@/app/liste-etudiants/components";
+import { Modal } from "@mantine/core";
+import { StudentModalContentWrapper } from "@/app/emargement/components";
+import { formatDayToThreeLetters } from "@/lib/dates";
 
-const ListeEtudiantsPage = () => {
+const StudentsPage = () => {
   const router = useRouter();
   const search = useSearchParams();
   const groupId = Number(search.get("groupId"));
@@ -34,7 +36,7 @@ const ListeEtudiantsPage = () => {
   return (
     <div className="h-screen flex flex-col gap-3 relative overflow-hidden md:hidden">
       <div className="mt-3">
-        <SectionTitle title="Liste d'étudiants" />
+        <SectionTitle title="Mes groupes" />
       </div>
 
       <Button
@@ -46,10 +48,12 @@ const ListeEtudiantsPage = () => {
       </Button>
 
       {groupName && groupSlot && (
-      <div>
-        <h1 className="text-xl font-bold text-center mt-6">{formatCourseName(groupName)}</h1>
-        <p className="text-md font-semibold text-center">{groupSlot}</p>
-      </div>
+        <div>
+          <h1 className="text-xl font-bold text-center mt-6">
+            {formatCourseName(groupName)}
+          </h1>
+          <p className="text-md font-semibold text-center">{formatDayToThreeLetters(groupSlot)}</p>
+        </div>
       )}
 
       <GroupRecap groupRecap={statistics} />
@@ -68,13 +72,13 @@ const ListeEtudiantsPage = () => {
             key={id}
             name={name}
             totalAbsences={getStudentStatistics(id).totalAbsences}
-            />
+          />
         ))}
       </div>
 
       <Modal
         withCloseButton={false}
-        radius='lg'
+        radius="lg"
         onClose={() => setSelectedStudentId(null)}
         opened={selectedStudentId !== null}
         centered
@@ -92,4 +96,4 @@ const ListeEtudiantsPage = () => {
   );
 };
 
-export default ListeEtudiantsPage;
+export default StudentsPage;

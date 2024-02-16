@@ -4,11 +4,12 @@ import statusup from "@/public/statusup.svg";
 type GroupRecap = {
   inscrits: number;
   abandons: number;
-  presence: number;
-  progression: number;
+  groupPresence: number;
+  progression: any;
 };
 
 const GroupRecap = ({ groupRecap }: { groupRecap: GroupRecap }) => {
+  
   return (
     <div>
       <div className="flex items-center ml-6 mt-4">
@@ -18,9 +19,9 @@ const GroupRecap = ({ groupRecap }: { groupRecap: GroupRecap }) => {
           width={17}
           height={17}
         />
-        <h1 className="text-[14px] font-semibold ml-2">Récapitulatif du groupe:</h1>
+        <h1 className="text-[14px] font-semibold ml-2">Récapitulatif du groupe :</h1>
       </div>
-      <div className="flex justify-around items-center bg-white shadow-md rounded-lg pt-4 pb-4 mb-2">
+      <div className="flex justify-around bg-white shadow-md rounded-lg pt-4 pb-4 mb-2 ml-6 mr-6">
         <div className="flex justify-around space-x-8">
           {[
             {
@@ -35,13 +36,13 @@ const GroupRecap = ({ groupRecap }: { groupRecap: GroupRecap }) => {
             },
             {
               name: "Présence",
-              number: groupRecap.presence,
+              number: groupRecap.groupPresence,
               isPercentage: true,
             },
             {
               name: "Progression",
               number: groupRecap.progression,
-              isPercentage: true,
+              isPercentage: false,
             },
           ].map(({ name, number, isPercentage }) => (
             <div
